@@ -1,0 +1,214 @@
+I.Basics
+
+1. Hellow World example
+	//Kotlin
+	//file : Hello.kt
+		package intro
+		fun main()
+		{
+			
+			val name="kotlin"
+			println("Hello, $name  !")
+
+			val mystr = if (name = "kotlin") "Welcome" else " Wrong course !"
+			println(" $mystr ")
+		}
+
+
+
+	No need for a class 
+	You no longer need to put everything inside a class
+	No need for arguments in main
+	You can insert a value inside a string literal by using a dollar sign and a variable name
+	You can assign the result of 'if' into a variable or return it from a function
+
+
+	fun myFN(): String
+	{
+		println("Test ...")
+		return "done"
+	}
+
+	fun main()
+	{
+		println("first ${myFN()} ,   second ${myFN()}  ")
+	}
+
+	we can call a function inside the string template ${yourfunction)()}
+
+	Result is :
+	Test ...
+	Test ...
+	First done, second done
+
+
+2. Variables
+
+*val(comes from 'value') : for read only variables 
+variables that are declared using val cannot be reassigned ( it corresponds to 'final varibale' in Java)
+	Example
+		val q:String ="test"
+		println("$q")
+		q="test2" // Error
+
+
+*var : mutable variable ( that can be modified)
+	var  x=0
+	x =4
+	println(x)
+	Result : 4
+
+In Kotlin you can omit the types of variables and the compiler will infer the types for you
+
+var string =1
+string="abc" // error : because the variable string has an Int type , later we cannot assign a string to an Int
+
+
+*What about Object ?
+ val person 
+ it can be modified , because it has the same reference ( we are modifying the content )
+
+	Exmaple for lists
+
+	val mutableList = mutableListOf("Java")
+	mutableList.add("Kotlin")
+
+	val readOnlyList = listOf("Java2")
+	readOnlyList.add("Kotlin2") //error beacause it's a read only list => read-only lacks mutating methods
+
+
+
+Conclusion :
+Prefer vals to vars
+It's better to specify type explicitly
+
+
+
+
+3.Functions
+
+	a.Simple function
+		fun max(a:Int, b:Int):Int
+		{
+			retrun if(a>b) a else b
+		}
+		OR
+		fun max(a:Int, b:Int):Int = if(a>b) a else b
+		OR // in case you're sure about the return type
+		fun max(a:Int, b:Int) = if(a>b) a else b
+
+	b. Function returning Unit ( Unit ~ void in Java)
+		fun diplayMax(a:Int, b:Int) : Unit
+		{ println (  max(a,b) )}
+
+		OR 
+		fun diplayMax(a:Int, b:Int) 
+		{ println (  max(a,b) )}
+
+
+	=>In Kotlin , you can define function everywhere
+
+	Top-level Function 		fun topLevel() =1
+	Member Function 		class A {
+								fun member () =2
+							}
+
+	Local Function 			fun other(){
+							fun local() =3
+							}
+
+	Exmaple : Calling a top-level Kotlin function from Java 
+
+	MyFile.kt
+		package intro
+		fun foo() = 0
+
+	Foo1.java
+		import MyFileKt.*
+
+		public class Foo1{
+			public static void main (String[] args)
+			{
+				MyFileKT.foo();
+			}
+		}
+
+
+	Foo2.java
+		import static MyFileKt.*
+
+		public class Foo1{
+			public static void main (String[] args)
+			{
+				foo();
+			}
+		}
+
+	OR 
+	Extensions.kt
+		@file:JvmName("Util") // to change the name of the class containt the top-level functions
+		package intro
+		fun foo() = 0
+
+	Foo3.java
+		import  Util
+		public class Foo1{
+			public static void main (String[] args)
+			{
+				int i = Util.foo();
+			}
+		}
+
+
+
+	c.Named & Default arguments in functions
+
+	Example :
+		println(listOf('a', 'b', 'c').joinToString( separator = "", prefix = "(", postfix = ")"))
+		Result : (abc)
+		Arguments : 
+					seperator ( default value = ",")
+					prefix (default value="")
+					postfix (default value="")
+
+	Example :
+		println(listOf(1,2,3).joinToString(postfix = "."))
+		Result : 1, 2, 3.
+
+		=> no need to specify all arguments 
+
+
+	fun displaySeparator(character : Char='*', size:Int=10)
+	{
+		repeat(size){ print (character)}
+	}
+
+
+	displaySeparator('#',5) => Result : #####
+	displaySeparator('#') => Result : ##########
+	displaySeparator() => Result : **********
+	displaySeparator(size=5) => Result : ***** // you can specify the name of the arguments and their values
+
+	displaySeparator(3, '5') // compilation error : order of arguments doesn't match 
+	displaySeparator(size=3, character='5') => Result  : 555
+
+
+	( In Java we use overloads , several functions)
+
+	Example : Calling a function with default argument from Java
+
+		fun sum (a:Int=0, b:Int=0, c:Int=0)
+
+		from Java : sum(1,2,3);
+		If we want to be able to call the same function with different arguments 
+		@JvmOverloads
+		fun sum (a:Int=0, b:Int=0, c:Int=0)
+
+		from Java : sum(1);
+
+		=> Using JvmOverloads annotation , 4 overloaded functions are generated :
+		public static final int sum (int a, int b, int c)
+		public static final int sum (int a, int b)
+		public static final int sum (int a)
+		public static final int sum ()
+

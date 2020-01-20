@@ -1,0 +1,74 @@
+
+III.Extensions
+ One of the best features of Kotlin, their main purpose is to keep your classes and interfaces APIs minimal.
+
+1. Extension Functions
+	StringExtentionsFile.kt
+		fun String.lastChar() = get(length-1)
+
+	OtherFile.kt
+		import com.example.util.*
+		val x:Char ="abc".lastChar() // x="c"
+
+	Calling from Java :
+	JavaFile.java
+		import static StringExtensionsFileKt.lastChar;
+		char x = lastChar("abc");
+
+2. Extensions from Standard Library (Kotlin SL => Java SL + extensions)
+
+	val set = hashSetOf(1,7,53)
+	val list = arrayListOf(1,7,53)
+	val map = hashMapOf(1 to "one", 7 to "seven", 53 to "fifty-three")
+	println(set.javaClass) // class java .util.HashSet (set.javaClass <=> getCalss() in java)
+
+*Kotlin Extensions (regular functions):
+	joinToString()// used with string
+	getOrNull() // used with array
+	withIndex() // used with collections
+	until // 1 until 10 OR 1.until(10)
+	to // "hot" to RED OR "hot".to("RED") // pair of values 
+	 	// val pair:Pair<Char,Double> = 'a' to 1.0
+	.... a lot of other extensions
+
+*Kotlin Extension on String
+	val q = """ text,
+				no text"""
+	println(q)
+	Result: text
+				no text
+	val q = """ text,
+	no text""".trimMargin()
+	println(q)
+	Result: text
+				no text
+	.trimMargin()
+	.trimIndent()
+
+-Regular Expressions
+	val regex = "\\d{2}\\.\\d{2}\\.\\d{4}".toRegex()
+	// OR val regex ="""\d{2}\.\d{2}\.\d{4}""".toRegex()
+	regex.matches("15.02.2016") // true
+	regex.matches("15.02.16") // false
+
+- Conversion to numbers
+	"123".toInt() // 123
+	"1e-10".toDouble() // 0.00..1
+	"vv".toInt() // NumberFormatException
+
+- Extension function eq ( checks wethter receiver equal argument,
+display OK or Error)
+	fun getAnswer() = 42
+	getAnswer() eq 42 // OK
+	getAnswer() eq 43 // Error: 42 != 43
+
+
+3.Calling Extensions
+
+	 fun String.get(index:Int) ='*'
+	 fun main()
+	 {
+	 	println( "abc".get(1))
+	 }
+Result : b Member always wins
+
