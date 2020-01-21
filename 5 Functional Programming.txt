@@ -1,0 +1,161 @@
+V. Functional Programming
+
+1. Lamdbas ( an anonymous function that can be used as an expression)
+Syntax : { parameters -> body}
+	Example : { x: Int, y:Int -> x+y }
+				list.any({i:Int -> i==0})
+				// in case lamda is the last argument
+				// => it can be moved out of parentheses
+				// => list.any()  {i:Int -> i==0}
+				// Or list.any  {i:Int -> i==0} // omitt ()
+	Note:
+	-If type is clear  from the context, it can be omitted 
+	list.any { i -> i==0}
+	- if lamda has only one argument => we can replace it with 'it'
+	=> list.any {it ==0}
+
+	*Multi-line Lambda
+
+	list.any {
+		println("processing $it")
+		it==0
+	}
+	// the last expression, which is , it== , is the result
+
+	*Destructing declarations
+
+		map.mapValues {(key,value) -> println (" $key , $value")}
+		OR
+		map.mapValues { entry -> println ("$entry.key , $entry.value ")}
+		// if parameter is not used => replace it with '_'
+		map.mapValues {(_,value) -> println (" $value")}
+		
+
+2. Operations on collections
+
+* filter 
+//It filters out the content of the list and keeps only their elements that satisfy the given predicate.
+In this case, we have the predicate checking that a number is even and only even numbers that are present in the resulting list
+	Example: list.filter {it %2 ==0}
+
+* map
+// map transform each element in a collection and stores all the resulting elements in a new list
+
+	Example : list.filter{it %2 ==0}.map{it+1}
+
+*Predicate
+	any //any checks that there is at least one element satisfying the given predicate (returns boolean)
+	all // All checks whether all elements satisfy the predicate (returns boolean) 
+	none // none makes sure that none of the elements satisfies the given predicate (returns boolean)
+
+	find // Find finds an element satisfying the given predicate and returns it as a result.If there is no required element, find returns null
+	first / last // First/last takes a predicate and throws an exception if no elements satisfying the predicate was found
+	firstOrNull /lastOrNull// same as find
+	distinct // finding only distinct element , remove duplicated valued
+
+	count // Count counts the number of elements that satisfy the given predicate
+	maxBy / minBy // takes property as argument ( age for example ),returns the first element with the maximum/minimum value of the property or null if the collection is empty
+
+
+	partition // It returns two collections, for the good elements and the remaining ones
+			Example : val (young,old) = employees.partition { it.age>30 }
+	groupBy {it.age} // result map of elements (key, value) grouped by age
+	associatedBy{ it.name}// used in case the key is unique , it removes duplicates
+	associate // build a map based on a list , argument should be a key to value 
+			Example : list.associate { it  to 10*it }
+	zip // organize two lists by creating a map containt a key from 1st list and its value from 2nd list
+			Example :
+				list1 = 1,2,3,4,5,6
+				list2 = a,b,c,d
+				using zip => (1,a), (2,b), (3,c), (4,d)
+			Note zip length is the shortest among both lists
+	zipWithNext // create a map having key and the right next element as its value
+			Example : list1 = 1,2,3,4,5,6
+						using zipWithNext => (1,2), (3,4), (5,6)
+	flatten //combines a list of lists (return one list containt all lists elements)
+			Exmaple : 
+					list1=1,2,3
+					list2 = 4,5,6
+					list3=7,8,9
+					using flatten => (1,2,3,4,5,6,7,8,9)
+	flatMap // It combines two operations, map and flat
+			Exmaple : s1="abc", s2="def"
+						using flatMap => 1st operation map => (a,b,c), (d,e,f)
+										2nd operation flatten => (a,b,c,d,e,f)
+
+
+Advices :
+- Don't use 'it' it it has differenet types inneighbouring lines
+- Prefer explicit parameter names if it might be confusing otherwise
+- Practice as msh as possible to learn the library
+
+
+
+3. Function types
+
+In kotlin we can store a lambda in a variable
+val sum : (Int, Int) -> Int = {x,y -> x+y}
+=> There is a diffrence between storing a lambda and storing the VALUE of a lambda (  which means calling the lamdba)
+	Example:
+		val isEven: (Int)-> Boolean = { i -> i%2 ==0} // a stored lambda
+		val result : Boolean = isEven(42) // storing the value of a lmabda (return true)
+		val list = listOf (1,2,3,4)
+		list.any(isEven) // return true
+		list.filter(isEven) // return 2,4
+
+4. Member references
+Like Java, Kotlin has member references, which can replace simple Lambdas that only
+call a member function or return a member property, it can convert Lambda to member reference automatically when it's possible.
+
+Example :
+	class Person (val name:String, val age:Int)
+	people.maxBy {it.age}
+	OR people.maxBy{Person::age} // Syntax list.operation {class::member}
+
+
+val isEven: (Int) -> Boolean = { i -> i%2 ==0}  //stored lamda
+fun isEven(i:Int): Boolean = i%2 == 0
+val predicate = isEven  /// Compile ERROR => We can't store a function in a variable
+
+Solution : use the function reference syntax , which allow you to store a reference to
+any defined function in a variable to be able to store it and qualitative it
+
+=> val predicate = ::isEven // same as : val predicate = {i -> isEven(i)}
+
+Example : Using the function instead of a lambda
+	fun isEven(i:Int): Boolean = i%2 == 0
+	val list = listOf (1,2,3,4)
+	list.any(::isEven) // return true
+	list.filter(::isEven) // return 2,4
+
+
+5.Using Return inside lambda
+
+
+Exmaple : what will be printed ?
+	fun duplicateNonZero(list: List<Int>): List<Int> { 
+	  return list.flatMap {
+	    if (it == 0) return listOf()
+	    listOf(it, it) 
+	  }
+	}
+	println(duplicateNonZero(listOf(3, 0, 5)))
+
+Answer : [] // empty list
+// Return in Kotlin always returns from a function marked with fun
+// once we find a zero , we return an empty list
+
+What can you do if you need to return from and lambda?
+You can use the labels returns syntax
+Solution :
+			list.flatMap {
+			    if (it == 0) return@flatMap listOf()
+			    listOf(it, it) 
+			  }
+	OR specify the label name
+			list.flatMap l@ {
+			    if (it == 0) return@l listOf()
+			    listOf(it, it) 
+			  }
+
+		=> Result : [3,3,5,5]
