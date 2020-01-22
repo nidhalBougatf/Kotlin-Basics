@@ -1,0 +1,105 @@
+VI. Properties
+
+In Java
+public JavaClass
+{
+	private int foo=0;
+	public int getFoo() {return foo;}
+	public void setFoo(int foo){this.foo=foo;}
+}
+
+In Kotlin 
+val myproerty // Read-only variable , we can only get its value
+var property // mutable variable , we can read and edit it
+
+class KotlinClass{
+	val Name:String="empty",
+	var foo=0 //getter and setter are automatically implemented 
+}
+
+
+
+Example : How many Methods does the class Person have ( excluding constructor)
+class Person(val name: String, var age: Int)
+Answer  : 3
+val name => getter
+var age => getter and setter 
+
+
+*Accesors visibility
+
+class LengthCounter{
+	
+	var counter: Int = 0 // by default getter and setter are public
+		private set //we can change like this so it will be accessible only inside the class
+
+
+}
+
+*Property in interface
+
+	interface User {
+		val nickname:String
+	}
+	class FacebookUser ( val eail:String) : User {
+		override val nickname:String
+		get() = email.substringBefore('@')
+	}
+
+Note :
+- Once you access the property from outside the class, you automatically call get()
+- Open property can't be used in smart cast ( it may return different value)
+
+*Extension properties
+	Example:
+		val String.lastIndex: Int 
+			get()= this.length-1
+
+		val String.indices: IntRange
+			get()=0..lasIndex
+
+		"abc".lastIndex //2
+		"abc".indices //0..2
+	Example2 : Mutable extension properties
+	var StringBuilder.lastChar : Char
+		get() = get(length-1)
+		set(value:Char){
+			this.setCharAt(length-1,value)
+		}
+	val sb = StringBuilder("Kotlin?")
+	sb.lastChar = "!"
+	println (sb)   	//Kotlin!
+
+*Lazy / Late initialization
+
+-Lazy Property
+	Example: 
+
+		val lazyValue:String by lazy{ // lazy takes a lambda as argument
+			prntln("computer!") // will be printed only first call
+			"Hello"				// will always be returned
+		}
+
+		fun main()
+		{
+			println(lazyValue)
+			println(lazyValue)
+
+		}
+		Result :
+		Computed!
+		Hello
+		Hello
+
+- Late initialization ( a property that can be initialized later )
+	Exmaple:
+	lateinit var myData: MyData // instead of : var myData: MyData?=null
+
+	Note : 
+	-'lateinit' property can't be declared as val (read-only), because it will be edited later
+	-'lateinit' property can't be a primitive type
+	- If variable wasn't initialized later, an excepion will occur while running 
+	- we can check whether the variable has been initialized or not using 'isInitilized'
+		Example : println(this::lateinitVar.isInitialized)
+
+

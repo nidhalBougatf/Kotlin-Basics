@@ -1,0 +1,345 @@
+VII. OOP int Kotlin
+
+Nothing new here , just some improvements !
+
+1. The defaults are different
+- any decoration is public and final by default
+- not final => open
+
+
+public: visible everywhere
+internal : visible in the same module
+protected : visible in the subclasses
+private :(member: visible in the class) (top-level declaration: visible in same file)
+
+
+final : cannot be overriden
+open : can be overriden
+abstract : must be overridden (can’t have an implementation)
+
+*Packages
+in Java, every class should be in a separate file
+in Kotlin, several classes / top-level functions in one file 
+
+
+2. Constructors, Inheritance syntax
+
+1. Constructor
+-By default a constructor is generated automatically
+	Example : Declaring a primary instructor
+		class Person(name:String){
+
+			val name : String
+			init{
+				this.name=name 				<==> class Person(val name:String)
+			}								// val/var creates a property
+
+		}
+	Exmaple : Changing visibility of a constructor
+		class InternalComponent 
+		internal constructor(name:String){
+			...
+		}
+	Exmaple: Declaring Secondary constructor
+		class Rectangle(val height:Int, val width:Int){ // primary
+
+			constructor(side:Int) : this(side,side)  { ... } // secondary
+									// this calls constructor of the same class
+		}
+
+Note:
+- if a primary / secondary is present , no default constructor is generated 
+
+2. Inheritance
+
+Exmaple 1: interface
+	interface Base
+	classe BaseImpl : Base
+
+Exmaple 2: class
+	open class Parent
+	class Child: Parent() // () used for constructor call
+		Exmaple : Calling a contructor of parent class
+			open class Parent(val name:String)
+			class Child(name:String): Parent(name)
+		OR
+			open class Parent(val name:String)
+			class Child : Parent{
+				constructor(name:String,age:Int):super(name) // super to call the constructor of parent class
+			}
+Excercice1:  Initialization order. What will be printed?
+	open class Parent {
+	  init { print("parent ") } 
+	}
+
+	class Child : Parent() {
+	  init { print("child ") } 
+	}
+
+	fun main(args: Array<String>) {
+	  Child() 
+	}
+Answer :  parent child
+
+
+Excercice2: What will be printed?
+	open class Parent {
+    open val foo = 1
+    init {
+	        println(foo)
+	    }
+	}
+
+	class Child: Parent() {
+	    override val foo = 2
+	}
+
+	fun main() {
+	    Child()
+	}
+Answer : 0 
+Explanation :
+// impossible to override a property , we're actually overriding a getter
+// 1- parent constructor is calld  , foo=1
+// 2- in init we call foo ( getFoo()) from Child class not the parent one
+//3- since the value has not been initialized ( default constructor )=> default in value 0 is printed 
+
+3. modifiers
+
+Modifiers can instruct the compiler to generate new methods or introduce additional constraints
+
+*enum
+											import mypackage.Color.*
+enum class Color{ BLUE,ORANGE, RED}			enum class Color{ BLUE,ORANGE, RED}
+
+fun getDescription(color:Color) = 	  OR 	fun getDescription(color:Color) =		
+when (color){								when (color){
+		Color.BLUE -> "cold"					BLUE -> "cold"
+		Color.ORANGE -> "mild"					ORANGE -> "mild"
+		Color.RED -> "hot"						RED -> "hot"
+}											}
+
+Note:
+- we can define variabale inside the enum class 
+
+
+* data class
+data modifier generates useful methods such as : equals, hashCode, copy, toString ...
+
+-Exmaple: Copy
+Call the copy method to copy an instance of the data class and specify only the arguments that must be changed
+
+	data class Contact(val name:String, val address:String)
+
+	contact.copy(address="new address")
+Exmaple: Equals & reference equality
+	val set1 = setOf(1,2,3)
+	val set2 = setOf(1,2,3)
+
+	set1 == set2 // true (data class => default equals will compare the content)
+	set1 === set2 // false ( checks reference equality)
+
+Excercice:
+	class Foo(val first: Int, val second: Int)
+	data class Bar(val first: Int, val second: Int)
+
+	val f1 = Foo(1, 2) 
+	val f2 = Foo(1, 2) 
+	println(f1 == f2)
+
+	val b1 = Bar(1, 2) 
+	val b2 = Bar(1, 2) 
+	println(b1 == b2)
+
+Answer: false true
+		Explaining:
+		1/class foo :by Default equals checks the reference equality
+		val f3=f1
+		println (f1 == f3) // true ( same refernce)
+		2/data class , equals compares the content
+Note: 
+in data class compiler uses the properties defined in primary constructor for the automatically generated functions. We can exclude a property by declaring it inside the class 
+	Example:
+		data class User( val email:String){
+			val nickname:String? = null
+		}
+
+*sealed class
+restricts class hierarchy ( all its subclasses must be in the same file )
+
+* nested class 
+class A ( by default it's a nested class) ( static in Java)
+
+* inner class
+inner class A ( inner class) ( defualt in Java)
+
+
+
+
+
+4. Object, Object expression & companion objects
+
+*Object
+in kotlin, object is singleton( a class which has only one instance in one place)
+val a = A()
+a.display()
+
+*Object expression
+it replaces Java anonymous class
+
+Example : 
+	window.addMouseListener(
+	  object : MouseAdapter() {
+	    override fun mouseClicked(e: MouseEvent) {
+	      // ...
+	    }
+	    override fun mouseEntered(e: MouseEvent) {
+	      // ...
+	    } 
+	  }
+	)
+
+	Note: 
+	-In this case, a new instance of object expression is created for each call ( two instances of customer)
+
+*companion objects
+it's a special object inside a class, the one which members can be accessed by the class name. In Kotlin, there are no static methods like in Java
+
+Note : 
+- compenianon object can implement an interface
+- can be a receiver of extension function
+
+No static keywor in kotlin :
+- declaring a companion object('static' in Java) members can be :
+	- at the top-level (object in top-level ,outside of the class, cannot call private member , which are inside the class)
+	- inside objects
+	- inside companion objects
+- We can add @JvmStatic annotation before the name of the method , so we can call this method in Java
+	Exmaple : Which line(s) won’t compile?
+		class C {
+		  companion object {
+		    @JvmStatic fun foo() {}
+		    fun bar() {} 
+		  }
+		}
+	Answer : line 2 // because we try to access bar() as a static function , you need to add @JvmStatic
+
+
+5. Constants
+
+const val aswer = 42 // becomes a compile-time constants (replace it with its valus wherever it's called)
+Note:
+const is used for primitive types and strings
+
+@JvmField // exposes a kotlin property as a field in Java
+val prop = MyClass() // same as defining static field in Java
+	// no getter or setter is generated for 'prop'
+
+
+
+6. Generics
+
+As in Java, you can define an interface or a class with a generic parameter.
+Then, when you use this class, you substitute a specific type, instead of a parameter
+
+* interfaces and classes
+
+Example:
+	interface List<E>{
+		fun get(index:Int):E
+	}
+
+	fun foo(ints:List<Int) {...}
+	fun bar(strings : List<String) { ... }
+
+* functions
+
+		fun <T> List<T>.filter(predicate: (T) ->   Boolean ): List<T>{
+			
+			val destination = ArrayList<T>()
+			for ( element in this)
+			{
+				if ( predicate(element) )
+					destination.add(element)
+			}
+			return destination
+		}
+
+		fun use1(ints:List<T>){
+			ints.filter{it>0}
+		}
+
+		fun use2(strings : List<String) {
+			 strings.filter{it.isNotEmpty() } 
+			 }
+
+		fun use3(ints:List<Int?>) {
+			ints.filter {it !=null && it >0 }
+		}
+
+		fun use4 (string: List<String?> ) {
+			strings.filter {!it.isNullOrEmpty()}
+		}
+
+
+*Nullable generic Argument
+
+fun <T> List<T>.firstOrNull(): T?
+val ints = listOf(1,2,3)
+val i:Int? = ints.firstOrNull() 		// 1
+val j:Int? = listOf<Int>().firstOrNull  // null
+val k:Int? = listOf(null,1).firstOrNull() // null
+
+Example : Can element be nullable in the example below?
+		fun <T> foo(list: List<T>) {
+	    for (element in list) {
+
+	    }
+	}
+	Answer : Yes
+
+if we want it to be null => Non-Nullable upper bound ( add : Any )
+
+		fun <T:Any > foo(list: List<T>) {
+	    for (element in list) {
+
+	    }
+	}
+
+*Type parameter constraints
+Example: 
+	fun<T: Number?> oneHalf (value:T) : Double? {
+		if (value == null) return null
+		return value.toDouble() / 2.0
+	}
+
+	oneHalf(13) // 6.5
+	oneHalf(null) // null
+
+*Comparable upper bound
+Exmaple:
+	fun<T:Comparable<T>> max (first:T, second:T) :T {
+		return if(first>second) first else second
+	}
+
+	max(1,3) //3
+
+Note:
+-We can't define functions with the same as JVM signature
+	Example:
+	fun List<Int>.average():Double {...}
+	fun List<Double>.average():Double {...}
+	=> ERROR : The following declations have the same JVM signature 
+	Solution : add @JvmName
+	fun List<Int>.average():Double {...}
+		@JvmName("averageOfDouble")
+		fun List<Double>.average():Double {...}
+
+		val doubles : List<Double>= listOf(1.0,2.0,3.0)
+		print(  doubles.averageOfDouble() )
+
+
+
+	=> @JvmName modifies the filename under the hood,but also can modify the name of the function at the bytecode.
+	In this case, two functions now have different names at the bytecode. The first one is average, the second one is average of double.
+	At the Jvm level, there are two different functions, so there is no error

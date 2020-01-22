@@ -1,0 +1,94 @@
+VIII. Conventions int Kotlin
+
+1. Operator overloading
+
+*Arithmetix operations
+
+a+b  => a.plus(b)
+
+Exmaple:
+	operator fun Point.plus(other: Point):Point {
+		retun Point (x+ other.x, y+ other.y)
+	}
+
+	Point(1,2) + Point(2,3)
+
+Names restrictions
+	+:plus
+	-:minus
+	*:times
+	/:div
+	%:mod
+
+Example : Unary operations ( -a => a.unaryMinus())
+	operator fun Point.unaryMinus() = Point(-x , -y)
+	-Point(3,4)  // Point(-3, -4)
+
+Unary Operations Names restrictions
+	++: UnaryPlus
+	-a: unaryMinus
+	!a: not
+	++a, a++: inc
+	--a, a--: dec
+
+Exmaple : Assignment operations
+	a+=b =>  a=a.plus(b) OR a.plusAssign(b)
+	Exmaple of list :
+		var list1 = listOf(1,2,3)
+		val list2 = list1
+		list1+=4
+		println(list1)  //var list1 ... =>mutable variable, added 4 later => [1,2,3,4]
+		println(list2) // [1,2,3]
+
+Note :
+- if we use plus explicitly ,, a new list will be created
+Exmaple:
+	var list = listOf(1,2,3)
+	list+=4 //right
+	list=list+4 // wrong , new list will be created , in this case , it's better to use val
+	Solution :
+		val list1 = mutableListOf(1,2,3)
+		val list2 = list1
+		list1+=4
+		println(list1)  //[1,2,3,4]
+		println(list2) // [1,2,3,4]
+
+
+2.Conventions
+
+*Comparisons 
+Exmaple:
+	a>=b => a.compareTo(b) >=0
+
+*Equality Check
+Exmaple:
+	s1 == s2 => s1.equals(s2) //it handles nullable values, null == null //return true
+
+*Accessing elemnt by index []
+Exmaple:	
+	map[key]
+	mutableMap[key] = newValue
+	X[a,b] => x.get(a,b)
+	X[a,b]=c => x.set(a,b,c)
+
+* 'in' convention
+Exmaple:
+	1..20 => 1.rangeTo(20)
+
+*Destructuring declarations
+This allows us to define several variables at once by assigning one expression and automatically destructuring it
+Exmaple:
+	val (young,old) = employees.partition { it.age>30 }
+	val (a,b) = p 
+
+*Destructuring in lambdas
+	one parameter  { a -> ... }
+	two parameters { a,b -> ... }
+	destructured pair { (a,b) -> ... }
+	destructured pair & another paraameter { (a,b),c -> ... }
+
+*Destructuring declarations & data classes
+
+data class Contact (val name: String, val email: String, val phoneNumber: String)
+
+val (name, _ , phonenumber) = contact
